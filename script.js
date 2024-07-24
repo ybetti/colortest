@@ -68,6 +68,8 @@ function updateColorMap(applyZoom = false) {
     const cells = [];
     const markedCells = [];
 
+    const cellSize = 30; // セルのサイズ（px）
+
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
@@ -104,8 +106,6 @@ function updateColorMap(applyZoom = false) {
             if (worst5.length === 5) break;
         }
     }
-
-    const cellSize = 30; // セルのサイズ（例：30px）
 
     // 最小値のセル位置を更新
     const minCell = cells[0];
@@ -184,4 +184,3 @@ function markSurroundingCells(rowIndex, colIndex, markedCells) {
         }
     }
 }
-
