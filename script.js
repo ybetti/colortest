@@ -107,17 +107,19 @@ function updateColorMap(applyZoom = false) {
 
     const cellSize = 30; // セルのサイズ（例：30px）
 
+    // 最小値のセル位置を更新
+    const minCell = cells[0];
+    const minCellLocation = document.getElementById('minCellLocation');
+    minCellLocation.textContent = `最小値セル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
+
+    // 丸の描画
     worst5.forEach(cell => {
         const circle = document.createElement('div');
+        circle.className = 'circle';
         circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.border = '2px solid black';
-        circle.style.borderRadius = '50%';
-        circle.style.position = 'absolute';
         circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
         circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
-        circle.style.pointerEvents = 'none';
-        circle.style.transform = 'translate(-50%, -50%)'; // 中心を調整
         colorMap.appendChild(circle);
     });
 }
@@ -182,4 +184,3 @@ function markSurroundingCells(rowIndex, colIndex, markedCells) {
         }
     }
 }
-
