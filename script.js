@@ -47,7 +47,7 @@ function updateColorMap() {
     const headers = lines[0].split(',');
     const colorMap = document.getElementById('colorMap');
     colorMap.innerHTML = '';
-    colorMap.style.position = 'relative'; // Ensure the parent container is relative for absolute positioning
+    colorMap.style.position = 'relative';
 
     const table = document.createElement('table');
     const headerRow = document.createElement('tr');
@@ -66,7 +66,6 @@ function updateColorMap() {
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
-        let rowInRange = false;
         rowData.forEach((cell, index) => {
             const td = document.createElement('td');
             td.textContent = cell;
@@ -74,30 +73,18 @@ function updateColorMap() {
             if (!isNaN(numericValue)) {
                 const color = getColorForValue(numericValue, minValue, maxValue);
                 td.style.backgroundColor = color;
-                rowInRange = true;
-
-                // セル情報を保存
                 cells.push({ value: numericValue, rowIndex: i, colIndex: index, color });
             }
             row.appendChild(td);
         });
-        if (rowInRange) {
-            table.appendChild(row);
-        }
+        table.appendChild(row);
     }
 
     colorMap.appendChild(table);
 
     // 数値が小さいワースト5を選ぶ
     cells.sort((a, b) => a.value - b.value);
-    const worst5 = [];
-    
-    for (const cell of cells) {
-        if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, worst5)) {
-            worst5.push(cell);
-            if (worst5.length === 5) break;
-        }
-    }
+    const worst5 = cells.slice(0, 5);
 
     // 最小値のセル位置を更新
     const minCell = cells[0];
@@ -121,10 +108,11 @@ function updateColorMap() {
         circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.position = 'absolute';
-        circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
-        circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+        circle.style.left = `${cell.colIndex * cellSize - (cellSize * 2.5)}px`; // セル5つ分の中心位置
+        circle.style.top = `${cell.rowIndex * cellSize - (cellSize * 2.5)}px`; // セル5つ分の中心位置
         circle.style.borderRadius = '50%';
         circle.style.border = '2px solid black';
+        circle.style.backgroundColor = 'rgba(255, 0, 0, 0.3)'; // 半透明の赤色
         circlesContainer.appendChild(circle);
     });
 }
@@ -169,15 +157,4 @@ function getColorForValue(value, min, max) {
         }
         return colors[colors.length - 1];
     }
-}
-
-function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            if (markedCells.some(cell => cell.rowIndex === rowIndex + rowOffset && cell.colIndex === colIndex + colOffset)) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
