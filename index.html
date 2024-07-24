@@ -10,23 +10,28 @@
         }
 
         table, th, td {
-            border: 1px solid black;
+            border: 0.5px solid black;
             padding: 5px;
         }
         .color-input {
             margin: 5px;
         }
+        .large-button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+        }
         .circle {
-            border: 2px solid black;
-            border-radius: 50%;
             position: absolute;
-            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid black;
             pointer-events: none;
         }
+        #colorMap {
+            position: relative;
+        }
         #minCellLocation {
-            display: inline-block;
-            margin-left: 10px;
-            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -39,18 +44,38 @@
         <input type="number" id="maxValue" value="100">
     </div>
     <div id="colorSelectors">
-        <!-- 色選択のための入力要素はここに配置 -->
+        <div class="color-input">
+            <label> 1% - 10% : <input type="number" id="range1" value="10" min="1" max="100"> <input type="color" id="color1" value="#ff2e2e"></label>
+        </div>
+        <div class="color-input">
+            <label>11% - 20% : <input type="number" id="range2" value="20" min="1" max="100"> <input type="color" id="color2" value="#f9b030"></label>
+        </div>
+        <div class="color-input">
+            <label>21% - 30% : <input type="number" id="range3" value="30" min="1" max="100"> <input type="color" id="color3" value="#fcff33"></label>
+        </div>
+        <div class="color-input">
+            <label>31% - 40% : <input type="number" id="range4" value="40" min="1" max="100"> <input type="color" id="color4" value="#87fb28"></label>
+        </div>
+        <div class="color-input">
+            <label>41% - 50% : <input type="number" id="range5" value="50" min="1" max="100"> <input type="color" id="color5" value="#00db04"></label>
+        </div>
+        <div class="color-input">
+            <label>51% - 60% : <input type="number" id="range6" value="60" min="1" max="100"> <input type="color" id="color6" value="#2effaf"></label>
+        </div>
+        <div class="color-input">
+            <label>61% - 70% : <input type="number" id="range7" value="70" min="1" max="100"> <input type="color" id="color7" value="#13ecdd"></label>
+        </div>
+        <div class="color-input">
+            <label>71% - 80% : <input type="number" id="range8" value="80" min="1" max="100"> <input type="color" id="color8" value="#0084ff"></label>
+        </div>
+        <div class="color-input">
+            <label>81% - 90% : <input type="number" id="range9" value="90" min="1" max="100"> <input type="color" id="color9" value="#0062ff"></label>
+        </div>
+        <div class="color-input">
+            <label>91% - 100%: <input type="number" id="range10" value="100" min="1" max="100"> <input type="color" id="color10" value="#0000ff"></label>
+        </div>
     </div>
-    
-    <div>
-        <label for="zoomMinValue">ズーム最小値 : </label>
-        <input type="number" id="zoomMinValue" value="0">
-        <label for="zoomMaxValue">ズーム最大値 : </label>
-        <input type="number" id="zoomMaxValue" value="50">
-        <button id="applyZoomButton">ズーム適用</button>
-    </div>
-    
-    <button id="updateButton">カラーマップを更新</button>
+    <button id="updateButton" class="large-button">カラーマップを更新</button>
     <div id="minCellLocation"></div>
     <div id="colorMap"></div>
 
