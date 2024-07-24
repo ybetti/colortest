@@ -66,6 +66,7 @@ function updateColorMap(applyZoom = false) {
     table.appendChild(headerRow);
 
     let topValues = [];
+    const markedCells = new Set();
 
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
@@ -80,7 +81,7 @@ function updateColorMap(applyZoom = false) {
                 rowInRange = true;
 
                 // トップの値を追跡する
-                topValues.push({ value: numericValue, cell: td, position: `${String.fromCharCode(65 + index)}${i + 1}`, row: i, col: index });
+                topValues.push({ value: numericValue, cell: td, rowIndex: i, colIndex: index });
             }
             row.appendChild(td);
         });
@@ -91,42 +92,30 @@ function updateColorMap(applyZoom = false) {
 
     colorMap.appendChild(table);
 
-    // トップの5つの値を取得し、赤色が最も強いセルの位置を知らせる
-    topValues.sort((a, b) => b.value - a.value);
-    let top5 = [];
-    for (let i = 0; i < topValues.length; i++) {
-        const current = topValues[i];
-        let valid = true;
-        for (let j = 0; j < top5.length; j++) {
-            const selected = top5[j];
-            if (Math.abs(current.row - selected.row) < 5 && Math.abs(current.col - selected.col) < 5) {
-                valid = false;
-                break;
-            }
-        }
-        if (valid) {
-            top5.push(current);
+    // トップの5つの値を取得し、マークする
+    topValues.sort((a, b) => a.value - b.value);
+    const top5 = [];
+
+    for (const item of topValues) {
+        const cellId = `${item.rowIndex}-${item.colIndex}`;
+        if (!isCellWithinMarkedArea(item.rowIndex, item.colIndex, markedCells)) {
+            top5.push(item);
+            markSurroundingCells(item.rowIndex, item.colIndex, markedCells);
             if (top5.length === 5) break;
         }
     }
 
-    top5.forEach((item, index) => {
-        item.cell.style.position = 'relative';
-        const marker = document.createElement('div');
-        marker.style.position = 'absolute';
-        marker.style.top = '50%';
-        marker.style.left = '50%';
-        marker.style.transform = 'translate(-50%, -50%)';
-        marker.style.width = '20px';
-        marker.style.height = '20px';
-        marker.style.borderRadius = '50%';
-        marker.style.border = '2px solid black';
-        marker.style.pointerEvents = 'none';
-        item.cell.appendChild(marker);
-
-        if (index === 0) {
-            alert(`赤色が最も強いセル: ${item.position}`);
-        }
+    top5.forEach(item => {
+        const circle = document.createElement('div');
+        circle.style.width = '5em';
+        circle.style.height = '5em';
+        circle.style.border = '2px solid black';
+        circle.style.borderRadius = '50%';
+        circle.style.position = 'absolute';
+        circle.style.left = `${item.colIndex * 5}em`;
+        circle.style.top = `${item.rowIndex * 5}em`;
+        circle.style.pointerEvents = 'none';
+        colorMap.appendChild(circle);
     });
 }
 
@@ -157,7 +146,6 @@ function getColorForValue(value, min, max) {
         document.getElementById('color10').value
     ];
 
-    // 最小値より小さい値に対して最初の色を適用
     if (value <= min) {
         return colors[0];
     } else if (value > max) {
@@ -169,6 +157,25 @@ function getColorForValue(value, min, max) {
                 return colors[i];
             }
         }
-        return colors[colors.length - 1]; // マッチしない場合は最後の色をデフォルトとして使用
+        return colors[colors.length - 1];
+    }
+}
+
+function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
+    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
+        for (let colOffset = -5; colOffset <= 5; colOffset++) {
+            if (markedCells.has(`${rowIndex + rowOffset}-${colIndex + colOffset}`)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function markSurroundingCells(rowIndex, colIndex, markedCells) {
+    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
+        for (let colOffset = -5; colOffset <= 5; colOffset++) {
+            markedCells.add(`${rowIndex + rowOffset}-${colIndex + colOffset}`);
+        }
     }
 }
