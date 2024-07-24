@@ -66,7 +66,7 @@ function updateColorMap(applyZoom = false) {
     table.appendChild(headerRow);
 
     const cells = [];
-    const redCells = [];
+    const markedCells = [];
 
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
@@ -83,9 +83,6 @@ function updateColorMap(applyZoom = false) {
 
                 // セル情報を保存
                 cells.push({ value: numericValue, rowIndex: i, colIndex: index, color });
-                if (isRed(color)) {
-                    redCells.push({ value: numericValue, rowIndex: i, colIndex: index });
-                }
             }
             row.appendChild(td);
         });
@@ -96,11 +93,11 @@ function updateColorMap(applyZoom = false) {
 
     colorMap.appendChild(table);
 
-    // 最も赤いセルを選ぶ
-    redCells.sort((a, b) => a.value - b.value);
+    // 数値が小さいトップ5を選ぶ
+    cells.sort((a, b) => a.value - b.value);
     const worst5 = [];
-
-    for (const cell of redCells) {
+    
+    for (const cell of cells) {
         if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, worst5)) {
             worst5.push(cell);
             markSurroundingCells(cell.rowIndex, cell.colIndex, worst5);
@@ -165,14 +162,6 @@ function getColorForValue(value, min, max) {
         }
         return colors[colors.length - 1];
     }
-}
-
-function isRed(color) {
-    // 赤色に近いかどうかを判定する関数
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-    return r > 150 && g < 100 && b < 100; // 赤の閾値は調整可能
 }
 
 function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
