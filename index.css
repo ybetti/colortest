@@ -1,0 +1,32 @@
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 0.5px solid black;
+    padding: 5px;
+}
+
+.color-input {
+    margin: 5px;
+}
+
+.large-button {
+    font-size: 20px;
+    padding: 10px 20px;
+    margin: 10px;
+}
+
+.circle-overlay {
+    position: absolute;
+    border: 2px solid red;
+    border-radius: 50%;
+    width: calc(100% * 5); /* セル5つ分の大きさ */
+    height: calc(100% * 5);
+    pointer-events: none; /* クリックを無視 */
+}
+
+.table-container {
+    position: relative;
+    display: inline-block;
+}
