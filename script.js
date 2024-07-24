@@ -92,8 +92,8 @@ function updateColorMap(applyZoom = false) {
 
     colorMap.appendChild(table);
 
-    // トップの5つの値を取得し、マークする
-    topValues.sort((a, b) => a.value - b.value);
+    // ワーストの5つの値を取得し、マークする
+    topValues.sort((a, b) => b.value - a.value);
     const top5 = [];
 
     for (const item of topValues) {
