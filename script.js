@@ -88,35 +88,27 @@ function updateColorMap(applyZoom = false) {
 
     colorMap.appendChild(table);
 
-    // 数値が小さい上位5か所を特定
-    cells.sort((a, b) => a.value - b.value);
-    const worst5 = cells.slice(0, 5);
-    
-    // すでにマークされたセルのリスト
-    const markedCells = [];
+    // 最小値のセルを特定
+    const minCell = cells.find(cell => cell.value === minValue);
 
-    // 丸の描画
-    worst5.forEach(cell => {
-        if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, markedCells)) {
-            const circle = document.createElement('div');
-            circle.className = 'circle';
-            circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
-            circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
-            circle.style.position = 'absolute';
-            circle.style.border = '2px solid black';
-            circle.style.borderRadius = '50%';
-            circle.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 赤色の薄い背景
-            circle.style.left = `${cell.colIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
-            circle.style.top = `${cell.rowIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
-            colorMap.appendChild(circle);
-            markSurroundingCells(cell.rowIndex, cell.colIndex, markedCells);
-        }
-    });
+    if (minCell) {
+        const circle = document.createElement('div');
+        circle.className = 'circle';
+        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.position = 'absolute';
+        circle.style.border = '2px solid black';
+        circle.style.borderRadius = '50%';
+        circle.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 赤色の薄い背景
+        circle.style.left = `${minCell.colIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
+        circle.style.top = `${minCell.rowIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
+        colorMap.appendChild(circle);
 
-    if (worst5.length > 0) {
-        const minCell = worst5[0];
+        // 最小値のセルの位置を表示
         document.getElementById('minCellLocation').textContent = 
             `最小値のセル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
+    } else {
+        document.getElementById('minCellLocation').textContent = '最小値のセルが見つかりません';
     }
 }
 
@@ -159,24 +151,5 @@ function getColorForValue(value, min, max) {
             }
         }
         return colors[colors.length - 1];
-    }
-}
-
-function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            if (markedCells.some(cell => cell.rowIndex === rowIndex + rowOffset && cell.colIndex === colIndex + colOffset)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-function markSurroundingCells(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            markedCells.push({ rowIndex: rowIndex + rowOffset, colIndex: colIndex + colOffset });
-        }
     }
 }
