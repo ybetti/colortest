@@ -3,30 +3,26 @@ table {
 }
 
 table, th, td {
-    border: 0.5px solid black;
+    border: 0.5px solid rgba(0, 0, 0, 0.2); /* 黒の50%透明度で薄い枠線 */
     padding: 5px;
 }
-
 .color-input {
     margin: 5px;
 }
-
 .large-button {
     font-size: 20px;
     padding: 10px 20px;
     margin: 10px;
 }
-
-.circle-overlay {
+.circle {
     position: absolute;
-    border: 2px solid red;
     border-radius: 50%;
-    width: calc(100% * 5); /* セル5つ分の大きさ */
-    height: calc(100% * 5);
-    pointer-events: none; /* クリックを無視 */
+    border: 2px solid black;
+    pointer-events: none;
 }
-
-.table-container {
+#colorMap {
     position: relative;
-    display: inline-block;
+}
+#minCellLocation {
+    margin-top: 10px;
 }
