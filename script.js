@@ -75,7 +75,7 @@ function updateColorMap(applyZoom = false) {
             const td = document.createElement('td');
             td.textContent = cell;
             const numericValue = parseFloat(cell);
-            if (!isNaN(numericValue) && numericValue >= zoomMinValue && numericValue <= zoomMaxValue) {
+            if (!isNaN(numericValue)) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
                 rowInRange = true;
 
@@ -130,15 +130,12 @@ function getColorForValue(value, min, max) {
         document.getElementById('color10').value
     ];
 
-    // 値が最小値よりも小さい場合、最初の色を使用
+    // 最小値より小さい値に対して最初の色を適用
     if (value <= min) {
         return colors[0];
-    }
-    // 値が最大値よりも大きい場合、最後の色を使用
-    else if (value > max) {
+    } else if (value > max) {
         return colors[colors.length - 1];
-    }
-    else {
+    } else {
         const percentage = (value - min) / (max - min) * 100;
         for (let i = 0; i < ranges.length; i++) {
             if (percentage <= ranges[i]) {
@@ -148,4 +145,3 @@ function getColorForValue(value, min, max) {
         return colors[colors.length - 1]; // マッチしない場合は最後の色をデフォルトとして使用
     }
 }
-
