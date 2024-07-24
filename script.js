@@ -18,10 +18,6 @@ document.getElementById('updateButton').addEventListener('click', function() {
     updateColorMap();
 });
 
-document.getElementById('applyZoomButton').addEventListener('click', function() {
-    updateColorMap(true);
-});
-
 function calculateMinMax() {
     if (!globalData) return;
 
@@ -41,13 +37,11 @@ function calculateMinMax() {
     document.getElementById('maxValue').value = autoMaxValue;
 }
 
-function updateColorMap(applyZoom = false) {
+function updateColorMap() {
     if (!globalData) return;
 
     const minValue = parseFloat(document.getElementById('minValue').value);
     const maxValue = parseFloat(document.getElementById('maxValue').value);
-    const zoomMinValue = applyZoom ? parseFloat(document.getElementById('zoomMinValue').value) : minValue;
-    const zoomMaxValue = applyZoom ? parseFloat(document.getElementById('zoomMaxValue').value) : maxValue;
 
     const lines = globalData.split('\n');
     const headers = lines[0].split(',');
@@ -66,8 +60,6 @@ function updateColorMap(applyZoom = false) {
     table.appendChild(headerRow);
 
     const cells = [];
-    const markedCells = [];
-
     const cellSize = 30; // セルのサイズ（px）
 
     for (let i = 1; i < lines.length; i++) {
@@ -88,7 +80,7 @@ function updateColorMap(applyZoom = false) {
             }
             row.appendChild(td);
         });
-        if (rowInRange || !applyZoom) {
+        if (rowInRange) {
             table.appendChild(row);
         }
     }
