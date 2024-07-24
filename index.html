@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSVからColor Map</title>
-    <link rel="stylesheet" href="index.css"> <!-- ここにCSSファイルのリンクを追加 -->
+    <link rel="stylesheet" href="index.css">
 </head>
-
 <body>
     <input type="file" id="fileInput" accept=".csv">
     <div>
@@ -49,7 +48,8 @@
     </div>
     <button id="updateButton" class="large-button">カラーマップを更新</button>
     <div id="colorMap"></div>
-    
+
+    <!-- html2canvasライブラリの追加 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
