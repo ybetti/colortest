@@ -3,8 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSVからColor Map2</title>
-    <link rel="stylesheet" href="index.css">
+    <title>CSVからColor Map</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 0.5px solid black;
+            padding: 5px;
+        }
+        .color-input {
+            margin: 5px;
+        }
+        .large-button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+        }
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid black;
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
     <input type="file" id="fileInput" accept=".csv">
@@ -47,7 +70,9 @@
         </div>
     </div>
     <button id="updateButton" class="large-button">カラーマップを更新</button>
-    <div id="colorMap"></div>
+    <button id="applyZoomButton" class="large-button">ズーム適用</button>
+    <div id="colorMap" style="position: relative;"></div>
+    <div id="minCellLocation"></div>
 
     <!-- html2canvasライブラリの追加 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
