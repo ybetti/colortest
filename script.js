@@ -73,6 +73,8 @@ function updateColorMap() {
     const colorMap = document.getElementById('colorMap');
     colorMap.innerHTML = '';
 
+    const tableContainer = document.createElement('div');
+    tableContainer.className = 'table-container';
     const table = document.createElement('table');
     const headerRow = document.createElement('tr');
 
@@ -96,15 +98,21 @@ function updateColorMap() {
             if (!isNaN(numericValue)) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
             }
-            if (lowestValues.some(item => item.row === i && item.col === colIndex)) {
-                td.textContent += ' ○';
-            }
             row.appendChild(td);
         });
         table.appendChild(row);
     }
 
-    colorMap.appendChild(table);
+    tableContainer.appendChild(table);
+    colorMap.appendChild(tableContainer);
+
+    lowestValues.forEach(item => {
+        const circle = document.createElement('div');
+        circle.className = 'circle-overlay';
+        circle.style.top = `${item.row * 100}%`; // 行の位置
+        circle.style.left = `${item.col * 100}%`; // 列の位置
+        tableContainer.appendChild(circle);
+    });
 }
 
 function getColorForValue(value, min, max) {
