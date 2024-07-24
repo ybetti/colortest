@@ -78,7 +78,6 @@ function updateColorMap(applyZoom = false) {
             if (!isNaN(numericValue)) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
                 if (numericValue >= zoomMinValue && numericValue <= zoomMaxValue) {
-                    td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
                     cells.push({ rowIndex: i - 1, colIndex: colIndex, value: numericValue });
                 }
             }
@@ -103,8 +102,12 @@ function updateColorMap(applyZoom = false) {
             circle.className = 'circle';
             circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
             circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
-            circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
-            circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+            circle.style.position = 'absolute';
+            circle.style.border = '2px solid black';
+            circle.style.borderRadius = '50%';
+            circle.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 赤色の薄い背景
+            circle.style.left = `${cell.colIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
+            circle.style.top = `${cell.rowIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
             colorMap.appendChild(circle);
             markSurroundingCells(cell.rowIndex, cell.colIndex, markedCells);
         }
