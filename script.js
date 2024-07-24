@@ -43,6 +43,25 @@ function calculateMinMax() {
     document.getElementById('maxValue').value = autoMaxValue;
 }
 
+function getLowestValues(data, n) {
+    let values = [];
+    const lines = data.split('\n');
+    for (let i = 1; i < lines.length; i++) {
+        const rowData = lines[i].split(',');
+        if (rowData.length === 0 || rowData[0].trim() === '') continue; // 空行を無視
+
+        rowData.forEach((cell, index) => {
+            const numericValue = parseFloat(cell);
+            if (!isNaN(numericValue)) {
+                values.push({ value: numericValue, row: i, col: index });
+            }
+        });
+    }
+
+    values.sort((a, b) => a.value - b.value);
+    return values.slice(0, n);
+}
+
 function updateColorMap() {
     if (!globalData) return;
 
@@ -65,15 +84,20 @@ function updateColorMap() {
 
     table.appendChild(headerRow);
 
+    const lowestValues = getLowestValues(globalData, 5);
+
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
-        rowData.forEach(cell => {
+        rowData.forEach((cell, colIndex) => {
             const td = document.createElement('td');
             td.textContent = cell;
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
+            }
+            if (lowestValues.some(item => item.row === i && item.col === colIndex)) {
+                td.textContent += ' ○';
             }
             row.appendChild(td);
         });
