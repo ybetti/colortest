@@ -28,6 +28,8 @@ function calculateMinMax() {
     const lines = globalData.split('\n');
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
+        if (rowData.length === 0 || rowData[0].trim() === '') continue; // 空行を無視
+
         rowData.forEach(cell => {
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
