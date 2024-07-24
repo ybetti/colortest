@@ -18,6 +18,10 @@ document.getElementById('updateButton').addEventListener('click', function() {
     updateColorMap();
 });
 
+document.getElementById('saveButton').addEventListener('click', function() {
+    saveColorMapAsImage();
+});
+
 function calculateMinMax() {
     if (!globalData) return;
 
@@ -59,61 +63,22 @@ function updateColorMap() {
 
     table.appendChild(headerRow);
 
-    const cells = [];
-    const cellSize = 30; // セルのサイズ（px）
-
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
-        let rowInRange = false;
-        rowData.forEach((cell, index) => {
+        rowData.forEach(cell => {
             const td = document.createElement('td');
             td.textContent = cell;
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
-                const color = getColorForValue(numericValue, minValue, maxValue);
-                td.style.backgroundColor = color;
-                rowInRange = true;
-
-                // セル情報を保存
-                cells.push({ value: numericValue, rowIndex: i, colIndex: index, color });
+                td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
             }
             row.appendChild(td);
         });
-        if (rowInRange) {
-            table.appendChild(row);
-        }
+        table.appendChild(row);
     }
 
     colorMap.appendChild(table);
-
-    // 数値が小さいトップ5を選ぶ
-    cells.sort((a, b) => a.value - b.value);
-    const worst5 = [];
-    
-    for (const cell of cells) {
-        if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, worst5)) {
-            worst5.push(cell);
-            markSurroundingCells(cell.rowIndex, cell.colIndex, worst5);
-            if (worst5.length === 5) break;
-        }
-    }
-
-    // 最小値のセル位置を更新
-    const minCell = cells[0];
-    const minCellLocation = document.getElementById('minCellLocation');
-    minCellLocation.textContent = `最小値セル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
-
-    // 丸の描画
-    worst5.forEach(cell => {
-        const circle = document.createElement('div');
-        circle.className = 'circle';
-        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
-        circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
-        colorMap.appendChild(circle);
-    });
 }
 
 function getColorForValue(value, min, max) {
@@ -154,25 +119,6 @@ function getColorForValue(value, min, max) {
                 return colors[i];
             }
         }
-        return colors[colors.length - 1];
-    }
-}
-
-function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            if (markedCells.some(cell => cell.rowIndex === rowIndex + rowOffset && cell.colIndex === colIndex + colOffset)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-function markSurroundingCells(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            markedCells.push({ rowIndex: rowIndex + rowOffset, colIndex: colIndex + colOffset });
-        }
+        return colors[colors.length - 1]; // Default to the last color if no match is found
     }
 }
