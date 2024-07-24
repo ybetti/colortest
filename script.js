@@ -95,25 +95,37 @@ function updateColorMap() {
     for (const cell of cells) {
         if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, worst5)) {
             worst5.push(cell);
-            markSurroundingCells(cell.rowIndex, cell.colIndex, worst5);
             if (worst5.length === 5) break;
         }
     }
 
     // 最小値のセル位置を更新
     const minCell = cells[0];
-    const minCellLocation = document.getElementById('minCellLocation');
+    const minCellLocation = document.createElement('div');
+    minCellLocation.id = 'minCellLocation';
     minCellLocation.textContent = `最小値セル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
+    colorMap.insertAdjacentElement('beforebegin', minCellLocation);
 
     // 丸の描画
+    const circlesContainer = document.createElement('div');
+    circlesContainer.style.position = 'absolute';
+    circlesContainer.style.top = '0';
+    circlesContainer.style.left = '0';
+    circlesContainer.style.width = '100%';
+    circlesContainer.style.height = '100%';
+    colorMap.appendChild(circlesContainer);
+
     worst5.forEach(cell => {
         const circle = document.createElement('div');
         circle.className = 'circle';
-        circle.style.width = `${30 * 5}px`; // セル5つ分の大きさ
-        circle.style.height = `${30 * 5}px`; // セル5つ分の大きさ
-        circle.style.left = `${cell.colIndex * 30 + 30 * 2.5}px`; // セル5つ分の中心位置
-        circle.style.top = `${cell.rowIndex * 30 + 30 * 2.5}px`; // セル5つ分の中心位置
-        colorMap.appendChild(circle);
+        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.position = 'absolute';
+        circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+        circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+        circle.style.borderRadius = '50%';
+        circle.style.border = '2px solid black';
+        circlesContainer.appendChild(circle);
     });
 }
 
@@ -168,12 +180,4 @@ function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
         }
     }
     return false;
-}
-
-function markSurroundingCells(rowIndex, colIndex, markedCells) {
-    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
-        for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            markedCells.push({ rowIndex: rowIndex + rowOffset, colIndex: colIndex + colOffset });
-        }
-    }
 }
