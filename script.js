@@ -65,8 +65,8 @@ function updateColorMap(applyZoom = false) {
 
     table.appendChild(headerRow);
 
-    let values = [];
-    const markedCells = new Set();
+    const cells = [];
+    const redCells = [];
 
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
@@ -77,11 +77,15 @@ function updateColorMap(applyZoom = false) {
             td.textContent = cell;
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
-                td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
+                const color = getColorForValue(numericValue, minValue, maxValue);
+                td.style.backgroundColor = color;
                 rowInRange = true;
 
-                // 値を追跡する
-                values.push({ value: numericValue, rowIndex: i, colIndex: index });
+                // セル情報を保存
+                cells.push({ value: numericValue, rowIndex: i, colIndex: index, color });
+                if (isRed(color)) {
+                    redCells.push({ value: numericValue, rowIndex: i, colIndex: index });
+                }
             }
             row.appendChild(td);
         });
@@ -92,29 +96,29 @@ function updateColorMap(applyZoom = false) {
 
     colorMap.appendChild(table);
 
-    // ワーストの5つの値を取得し、マークする
-    values.sort((a, b) => b.value - a.value);
+    // 最も赤いセルを選ぶ
+    redCells.sort((a, b) => a.value - b.value);
     const worst5 = [];
 
-    for (const item of values) {
-        if (!isCellWithinMarkedArea(item.rowIndex, item.colIndex, markedCells)) {
-            worst5.push(item);
-            markSurroundingCells(item.rowIndex, item.colIndex, markedCells);
+    for (const cell of redCells) {
+        if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, worst5)) {
+            worst5.push(cell);
+            markSurroundingCells(cell.rowIndex, cell.colIndex, worst5);
             if (worst5.length === 5) break;
         }
     }
 
     const cellSize = 30; // セルのサイズ（例：30px）
 
-    worst5.forEach(item => {
+    worst5.forEach(cell => {
         const circle = document.createElement('div');
         circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.border = '2px solid black';
         circle.style.borderRadius = '50%';
         circle.style.position = 'absolute';
-        circle.style.left = `${item.colIndex * cellSize}px`;
-        circle.style.top = `${item.rowIndex * cellSize}px`;
+        circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+        circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
         circle.style.pointerEvents = 'none';
         circle.style.transform = 'translate(-50%, -50%)'; // 中心を調整
         colorMap.appendChild(circle);
@@ -163,10 +167,18 @@ function getColorForValue(value, min, max) {
     }
 }
 
+function isRed(color) {
+    // 赤色に近いかどうかを判定する関数
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    return r > 150 && g < 100 && b < 100; // 赤の閾値は調整可能
+}
+
 function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
     for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
         for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            if (markedCells.has(`${rowIndex + rowOffset}-${colIndex + colOffset}`)) {
+            if (markedCells.some(cell => cell.rowIndex === rowIndex + rowOffset && cell.colIndex === colIndex + colOffset)) {
                 return true;
             }
         }
@@ -177,7 +189,7 @@ function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
 function markSurroundingCells(rowIndex, colIndex, markedCells) {
     for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
         for (let colOffset = -5; colOffset <= 5; colOffset++) {
-            markedCells.add(`${rowIndex + rowOffset}-${colIndex + colOffset}`);
+            markedCells.push({ rowIndex: rowIndex + rowOffset, colIndex: colIndex + colOffset });
         }
     }
 }
