@@ -18,6 +18,10 @@ document.getElementById('updateButton').addEventListener('click', function() {
     updateColorMap();
 });
 
+document.getElementById('applyZoomButton').addEventListener('click', function() {
+    updateColorMap(true);
+});
+
 function calculateMinMax() {
     if (!globalData) return;
 
@@ -37,17 +41,18 @@ function calculateMinMax() {
     document.getElementById('maxValue').value = autoMaxValue;
 }
 
-function updateColorMap() {
+function updateColorMap(applyZoom = false) {
     if (!globalData) return;
 
     const minValue = parseFloat(document.getElementById('minValue').value);
     const maxValue = parseFloat(document.getElementById('maxValue').value);
+    const zoomMinValue = applyZoom ? parseFloat(document.getElementById('zoomMinValue').value) : minValue;
+    const zoomMaxValue = applyZoom ? parseFloat(document.getElementById('zoomMaxValue').value) : maxValue;
 
     const lines = globalData.split('\n');
     const headers = lines[0].split(',');
     const colorMap = document.getElementById('colorMap');
     colorMap.innerHTML = '';
-    colorMap.style.position = 'relative';
 
     const table = document.createElement('table');
     const headerRow = document.createElement('tr');
@@ -61,19 +66,21 @@ function updateColorMap() {
     table.appendChild(headerRow);
 
     const cells = [];
-    const cellSize = 30; // セルのサイズ（px）
+    const cellSize = 30; // セルのサイズ、調整が必要な場合があります
 
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
-        rowData.forEach((cell, index) => {
+        rowData.forEach((cell, colIndex) => {
             const td = document.createElement('td');
             td.textContent = cell;
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
-                const color = getColorForValue(numericValue, minValue, maxValue);
-                td.style.backgroundColor = color;
-                cells.push({ value: numericValue, rowIndex: i, colIndex: index, color });
+                td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
+                if (numericValue >= zoomMinValue && numericValue <= zoomMaxValue) {
+                    td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
+                    cells.push({ rowIndex: i - 1, colIndex: colIndex, value: numericValue });
+                }
             }
             row.appendChild(td);
         });
@@ -82,39 +89,32 @@ function updateColorMap() {
 
     colorMap.appendChild(table);
 
-    // 数値が小さいワースト5を選ぶ
+    // 数値が小さい上位5か所を特定
     cells.sort((a, b) => a.value - b.value);
     const worst5 = cells.slice(0, 5);
-
-    // 最小値のセル位置を更新
-    const minCell = cells[0];
-    const minCellLocation = document.createElement('div');
-    minCellLocation.id = 'minCellLocation';
-    minCellLocation.textContent = `最小値セル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
-    colorMap.insertAdjacentElement('beforebegin', minCellLocation);
+    
+    // すでにマークされたセルのリスト
+    const markedCells = [];
 
     // 丸の描画
-    const circlesContainer = document.createElement('div');
-    circlesContainer.style.position = 'absolute';
-    circlesContainer.style.top = '0';
-    circlesContainer.style.left = '0';
-    circlesContainer.style.width = '100%';
-    circlesContainer.style.height = '100%';
-    colorMap.appendChild(circlesContainer);
-
     worst5.forEach(cell => {
-        const circle = document.createElement('div');
-        circle.className = 'circle';
-        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.position = 'absolute';
-        circle.style.left = `${cell.colIndex * cellSize - (cellSize * 2.5)}px`; // セル5つ分の中心位置
-        circle.style.top = `${cell.rowIndex * cellSize - (cellSize * 2.5)}px`; // セル5つ分の中心位置
-        circle.style.borderRadius = '50%';
-        circle.style.border = '2px solid black';
-        circle.style.backgroundColor = 'rgba(255, 0, 0, 0.3)'; // 半透明の赤色
-        circlesContainer.appendChild(circle);
+        if (!isCellWithinMarkedArea(cell.rowIndex, cell.colIndex, markedCells)) {
+            const circle = document.createElement('div');
+            circle.className = 'circle';
+            circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
+            circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
+            circle.style.left = `${cell.colIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+            circle.style.top = `${cell.rowIndex * cellSize + cellSize * 2.5}px`; // セル5つ分の中心位置
+            colorMap.appendChild(circle);
+            markSurroundingCells(cell.rowIndex, cell.colIndex, markedCells);
+        }
     });
+
+    if (worst5.length > 0) {
+        const minCell = worst5[0];
+        document.getElementById('minCellLocation').textContent = 
+            `最小値のセル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
+    }
 }
 
 function getColorForValue(value, min, max) {
@@ -156,5 +156,24 @@ function getColorForValue(value, min, max) {
             }
         }
         return colors[colors.length - 1];
+    }
+}
+
+function isCellWithinMarkedArea(rowIndex, colIndex, markedCells) {
+    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
+        for (let colOffset = -5; colOffset <= 5; colOffset++) {
+            if (markedCells.some(cell => cell.rowIndex === rowIndex + rowOffset && cell.colIndex === colIndex + colOffset)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function markSurroundingCells(rowIndex, colIndex, markedCells) {
+    for (let rowOffset = -5; rowOffset <= 5; rowOffset++) {
+        for (let colOffset = -5; colOffset <= 5; colOffset++) {
+            markedCells.push({ rowIndex: rowIndex + rowOffset, colIndex: colIndex + colOffset });
+        }
     }
 }
