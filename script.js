@@ -91,17 +91,21 @@ function updateColorMap(applyZoom = false) {
     // 最小値のセルを特定
     const minCell = cells.find(cell => cell.value === minValue);
 
+    // すべての丸印を削除
+    const existingCircles = document.querySelectorAll('.circle');
+    existingCircles.forEach(circle => circle.remove());
+
     if (minCell) {
         const circle = document.createElement('div');
         circle.className = 'circle';
-        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
-        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.width = `${30 * 5}px`; // セル5つ分の大きさ
+        circle.style.height = `${30 * 5}px`; // セル5つ分の大きさ
         circle.style.position = 'absolute';
         circle.style.border = '2px solid black';
         circle.style.borderRadius = '50%';
         circle.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 赤色の薄い背景
-        circle.style.left = `${minCell.colIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
-        circle.style.top = `${minCell.rowIndex * cellSize - cellSize * 2}px`; // セル5つ分の中心位置
+        circle.style.left = `${minCell.colIndex * 30 - (30 * 2)}px`; // セル5つ分の中心位置
+        circle.style.top = `${minCell.rowIndex * 30 - (30 * 2)}px`; // セル5つ分の中心位置
         colorMap.appendChild(circle);
 
         // 最小値のセルの位置を表示
@@ -153,4 +157,3 @@ function getColorForValue(value, min, max) {
         return colors[colors.length - 1];
     }
 }
-
