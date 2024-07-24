@@ -182,3 +182,4 @@ function markSurroundingCells(rowIndex, colIndex, markedCells) {
         }
     }
 }
+
