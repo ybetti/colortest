@@ -3,26 +3,23 @@ table {
 }
 
 table, th, td {
-    border: 0.5px solid rgba(0, 0, 0, 0.2); /* 黒の50%透明度で薄い枠線 */
+    border: 0.5px solid rgba(0, 0, 0, 0.5); /* 色を薄くするためにrgbaを使用 */
     padding: 5px;
 }
+
 .color-input {
     margin: 5px;
 }
+
 .large-button {
     font-size: 20px;
     padding: 10px 20px;
     margin: 10px;
 }
+
 .circle {
     position: absolute;
     border-radius: 50%;
     border: 2px solid black;
-    pointer-events: none;
-}
-#colorMap {
-    position: relative;
-}
-#minCellLocation {
-    margin-top: 10px;
+    background-color: rgba(255, 0, 0, 0); /* 赤色の薄い背景0.2で20％ */
 }
