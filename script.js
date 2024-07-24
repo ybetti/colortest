@@ -80,7 +80,7 @@ function updateColorMap(applyZoom = false) {
                 rowInRange = true;
 
                 // トップの値を追跡する
-                topValues.push({ value: numericValue, cell: td, position: `${String.fromCharCode(65 + index)}${i + 1}` });
+                topValues.push({ value: numericValue, cell: td, position: `${String.fromCharCode(65 + index)}${i + 1}`, row: i, col: index });
             }
             row.appendChild(td);
         });
@@ -93,10 +93,37 @@ function updateColorMap(applyZoom = false) {
 
     // トップの5つの値を取得し、赤色が最も強いセルの位置を知らせる
     topValues.sort((a, b) => b.value - a.value);
-    const top5 = topValues.slice(0, 5);
+    let top5 = [];
+    for (let i = 0; i < topValues.length; i++) {
+        const current = topValues[i];
+        let valid = true;
+        for (let j = 0; j < top5.length; j++) {
+            const selected = top5[j];
+            if (Math.abs(current.row - selected.row) < 5 && Math.abs(current.col - selected.col) < 5) {
+                valid = false;
+                break;
+            }
+        }
+        if (valid) {
+            top5.push(current);
+            if (top5.length === 5) break;
+        }
+    }
 
     top5.forEach((item, index) => {
-        item.cell.style.border = '2px solid black';
+        item.cell.style.position = 'relative';
+        const marker = document.createElement('div');
+        marker.style.position = 'absolute';
+        marker.style.top = '50%';
+        marker.style.left = '50%';
+        marker.style.transform = 'translate(-50%, -50%)';
+        marker.style.width = '20px';
+        marker.style.height = '20px';
+        marker.style.borderRadius = '50%';
+        marker.style.border = '2px solid black';
+        marker.style.pointerEvents = 'none';
+        item.cell.appendChild(marker);
+
         if (index === 0) {
             alert(`赤色が最も強いセル: ${item.position}`);
         }
