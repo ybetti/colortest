@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSVからColor Map2</title>
+    <title>CSVからColor Map</title>
     <style>
         table {
             border-collapse: collapse;
@@ -20,18 +20,6 @@
             font-size: 20px;
             padding: 10px 20px;
             margin: 10px;
-        }
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid black;
-            pointer-events: none;
-        }
-        #colorMap {
-            position: relative;
-        }
-        #minCellLocation {
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -76,7 +64,7 @@
         </div>
     </div>
     <button id="updateButton" class="large-button">カラーマップを更新</button>
-    <div id="minCellLocation"></div>
+    <button id="saveButton" class="large-button">カラーマップを保存</button>
     <div id="colorMap"></div>
 
     <!-- html2canvasライブラリの追加 -->
