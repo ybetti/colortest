@@ -65,7 +65,7 @@ function updateColorMap(applyZoom = false) {
 
     table.appendChild(headerRow);
 
-    let topValues = [];
+    let values = [];
     const markedCells = new Set();
 
     for (let i = 1; i < lines.length; i++) {
@@ -80,8 +80,8 @@ function updateColorMap(applyZoom = false) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
                 rowInRange = true;
 
-                // トップの値を追跡する
-                topValues.push({ value: numericValue, cell: td, rowIndex: i, colIndex: index });
+                // 値を追跡する
+                values.push({ value: numericValue, rowIndex: i, colIndex: index });
             }
             row.appendChild(td);
         });
@@ -93,28 +93,30 @@ function updateColorMap(applyZoom = false) {
     colorMap.appendChild(table);
 
     // ワーストの5つの値を取得し、マークする
-    topValues.sort((a, b) => b.value - a.value);
-    const top5 = [];
+    values.sort((a, b) => b.value - a.value);
+    const worst5 = [];
 
-    for (const item of topValues) {
-        const cellId = `${item.rowIndex}-${item.colIndex}`;
+    for (const item of values) {
         if (!isCellWithinMarkedArea(item.rowIndex, item.colIndex, markedCells)) {
-            top5.push(item);
+            worst5.push(item);
             markSurroundingCells(item.rowIndex, item.colIndex, markedCells);
-            if (top5.length === 5) break;
+            if (worst5.length === 5) break;
         }
     }
 
-    top5.forEach(item => {
+    const cellSize = 30; // セルのサイズ（例：30px）
+
+    worst5.forEach(item => {
         const circle = document.createElement('div');
-        circle.style.width = '5em';
-        circle.style.height = '5em';
+        circle.style.width = `${cellSize * 5}px`; // セル5つ分の大きさ
+        circle.style.height = `${cellSize * 5}px`; // セル5つ分の大きさ
         circle.style.border = '2px solid black';
         circle.style.borderRadius = '50%';
         circle.style.position = 'absolute';
-        circle.style.left = `${item.colIndex * 5}em`;
-        circle.style.top = `${item.rowIndex * 5}em`;
+        circle.style.left = `${item.colIndex * cellSize}px`;
+        circle.style.top = `${item.rowIndex * cellSize}px`;
         circle.style.pointerEvents = 'none';
+        circle.style.transform = 'translate(-50%, -50%)'; // 中心を調整
         colorMap.appendChild(circle);
     });
 }
