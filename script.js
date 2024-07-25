@@ -104,11 +104,11 @@ function drawCircleOnMinValue() {
 
     const circle = document.createElement('div');
     circle.classList.add('circle');
-    circle.style.width = '25px'; // セル5つ分のサイズに合わせて調整
-    circle.style.height = '25px'; // セル5つ分のサイズに合わせて調整
+    circle.style.width = '125px'; // セル5つ分のサイズに合わせて調整
+    circle.style.height = '125px'; // セル5つ分のサイズに合わせて調整
     circle.style.position = 'absolute';
     circle.style.borderRadius = '50%';
-    circle.style.border = '2px solid red';
+    circle.style.border = '5px solid red';
 
     const rect = cell.getBoundingClientRect();
     const tableRect = table.getBoundingClientRect();
