@@ -1,6 +1,7 @@
 let globalData = null;
 let autoMinValue = Number.POSITIVE_INFINITY;
 let autoMaxValue = Number.NEGATIVE_INFINITY;
+let minCellLocation = { row: -1, col: -1 };
 
 document.getElementById('fileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
@@ -28,10 +29,13 @@ function calculateMinMax() {
     const lines = globalData.split('\n');
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
-        rowData.forEach(cell => {
+        rowData.forEach((cell, colIndex) => {
             const numericValue = parseFloat(cell);
             if (!isNaN(numericValue)) {
-                if (numericValue < autoMinValue) autoMinValue = numericValue;
+                if (numericValue < autoMinValue) {
+                    autoMinValue = numericValue;
+                    minCellLocation = { row: i, col: colIndex };
+                }
                 if (numericValue > autoMaxValue) autoMaxValue = numericValue;
             }
         });
@@ -39,6 +43,12 @@ function calculateMinMax() {
 
     document.getElementById('minValue').value = autoMinValue;
     document.getElementById('maxValue').value = autoMaxValue;
+    displayMinCellLocation();
+}
+
+function displayMinCellLocation() {
+    const locationText = `最小値のセル: 行 ${minCellLocation.row}, 列 ${minCellLocation.col}`;
+    document.getElementById('minCellLocation').textContent = locationText;
 }
 
 function updateColorMap(applyZoom = false) {
@@ -65,9 +75,6 @@ function updateColorMap(applyZoom = false) {
 
     table.appendChild(headerRow);
 
-    const cells = [];
-    const cellSize = 30; // セルのサイズ、調整が必要な場合があります
-
     for (let i = 1; i < lines.length; i++) {
         const rowData = lines[i].split(',');
         const row = document.createElement('tr');
@@ -75,11 +82,8 @@ function updateColorMap(applyZoom = false) {
             const td = document.createElement('td');
             td.textContent = cell;
             const numericValue = parseFloat(cell);
-            if (!isNaN(numericValue)) {
+            if (!isNaN(numericValue) && numericValue >= minValue && numericValue <= maxValue) {
                 td.style.backgroundColor = getColorForValue(numericValue, minValue, maxValue);
-                if (numericValue >= zoomMinValue && numericValue <= zoomMaxValue) {
-                    cells.push({ rowIndex: i - 1, colIndex: colIndex, value: numericValue });
-                }
             }
             row.appendChild(td);
         });
@@ -87,33 +91,32 @@ function updateColorMap(applyZoom = false) {
     }
 
     colorMap.appendChild(table);
+    drawCircleOnMinValue();
+}
 
-    // 最小値のセルを特定
-    const minCell = cells.find(cell => cell.value === minValue);
+function drawCircleOnMinValue() {
+    const table = document.querySelector('#colorMap table');
+    if (!table || minCellLocation.row === -1 || minCellLocation.col === -1) return;
 
-    // すべての丸印を削除
-    const existingCircles = document.querySelectorAll('.circle');
-    existingCircles.forEach(circle => circle.remove());
+    const row = table.rows[minCellLocation.row];
+    const cell = row.cells[minCellLocation.col];
+    if (!cell) return;
 
-    if (minCell) {
-        const circle = document.createElement('div');
-        circle.className = 'circle';
-        circle.style.width = `${30 * 5}px`; // セル5つ分の大きさ
-        circle.style.height = `${30 * 5}px`; // セル5つ分の大きさ
-        circle.style.position = 'absolute';
-        circle.style.border = '2px solid black';
-        circle.style.borderRadius = '50%';
-        circle.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 赤色の薄い背景
-        circle.style.left = `${minCell.colIndex * 30 - (30 * 2)}px`; // セル5つ分の中心位置
-        circle.style.top = `${minCell.rowIndex * 30 - (30 * 2)}px`; // セル5つ分の中心位置
-        colorMap.appendChild(circle);
+    const circle = document.createElement('div');
+    circle.classList.add('circle');
+    circle.style.width = '25px'; // セル5つ分のサイズに合わせて調整
+    circle.style.height = '25px'; // セル5つ分のサイズに合わせて調整
+    circle.style.position = 'absolute';
+    circle.style.borderRadius = '50%';
+    circle.style.border = '2px solid red';
 
-        // 最小値のセルの位置を表示
-        document.getElementById('minCellLocation').textContent = 
-            `最小値のセル: 行${minCell.rowIndex + 1}, 列${minCell.colIndex + 1}`;
-    } else {
-        document.getElementById('minCellLocation').textContent = '最小値のセルが見つかりません';
-    }
+    const rect = cell.getBoundingClientRect();
+    const tableRect = table.getBoundingClientRect();
+
+    circle.style.left = `${rect.left - tableRect.left + cell.offsetWidth / 2 - 12.5}px`;
+    circle.style.top = `${rect.top - tableRect.top + cell.offsetHeight / 2 - 12.5}px`;
+
+    document.getElementById('colorMap').appendChild(circle);
 }
 
 function getColorForValue(value, min, max) {
@@ -154,7 +157,6 @@ function getColorForValue(value, min, max) {
                 return colors[i];
             }
         }
-        return colors[colors.length - 1];
+        return colors[colors.length - 1]; // Default to the last color if no match is found
     }
 }
-
